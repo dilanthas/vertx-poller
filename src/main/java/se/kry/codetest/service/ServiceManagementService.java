@@ -1,7 +1,6 @@
 package se.kry.codetest.service;
 
-import com.sun.istack.internal.NotNull;
-import com.sun.javaws.exceptions.InvalidArgumentException;
+
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -11,18 +10,18 @@ import se.kry.codetest.DBConnector;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.sql.Date;
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
 import static se.kry.codetest.service.ServiceStatus.UNKNOWN;
 
-public class DataService {
+public class ServiceManagementService {
 
     public DBConnector dbConnector;
 
-    public DataService(DBConnector dbConnector) {
+    public ServiceManagementService(DBConnector dbConnector) {
         this.dbConnector = dbConnector;
     }
 
@@ -40,8 +39,8 @@ public class DataService {
             queryResultFuture.fail(new IllegalArgumentException("Service url cannot be empty"));
             return queryResultFuture;
         }
-        if(!isValidURL(url)){
-            queryResultFuture.fail(new IllegalArgumentException(String.format("Invalid URL %s",url)));
+        if (!isValidURL(url)) {
+            queryResultFuture.fail(new IllegalArgumentException(String.format("Invalid URL %s", url)));
             return queryResultFuture;
         }
         // If name not provided set the url as the name
@@ -59,12 +58,17 @@ public class DataService {
                 queryResultFuture.complete(response.result());
             }
         });
+
         return queryResultFuture;
     }
 
     public boolean isValidURL(String url) {
 
+        String[] schemes = {"http", "https"};
         try {
+            if (!(url.contains(schemes[0]) || url.contains(schemes[1]))) {
+                url = schemes[0] + "://" + url;
+            }
             new URL(url).toURI();
         } catch (MalformedURLException | URISyntaxException e) {
             return false;
@@ -125,6 +129,7 @@ public class DataService {
 
         String updateQuery = "UPDATE service set status = ? , last_updated = ? WHERE id = ?";
         JsonArray params = new JsonArray().add(serviceStatus).add(Instant.ofEpochMilli(System.currentTimeMillis())).add(id);
+
         Future<Void> queryResultFuture = Future.future();
 
         dbConnector.query(updateQuery, params).setHandler(response -> {

@@ -35,6 +35,20 @@ dependencies {
   testImplementation "io.vertx:vertx-junit5:$vertxVersion"
   testRuntime("org.junit.jupiter:junit-jupiter-engine:$junitJupiterEngineVersion")
 
+  /**
+   * JUnit jupiter with mockito.
+   */
+  testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: '2.19.0'
+
+  /**
+   * Mockito for mocking.
+   */
+  testCompile group: 'org.mockito', name: 'mockito-core', version: '2.19.0'
+
+  testCompile group: 'org.assertj', name: 'assertj-core', version: '3.15.0'
+
+
+
 }
 
 

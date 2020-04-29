@@ -4,26 +4,23 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
-import se.kry.codetest.service.DataService;
+import se.kry.codetest.service.ServiceManagementService;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class MainVerticle extends AbstractVerticle {
 
     private DBConnector connector;
-    private DataService dataService;
+    private ServiceManagementService serviceManagementService;
     private BackgroundPoller poller ;
 
     private void init(){
         connector = new DBConnector(vertx);
-        dataService = new DataService(connector);
-        poller = new BackgroundPoller(dataService,vertx);
+        serviceManagementService = new ServiceManagementService(connector);
+        poller = new BackgroundPoller(serviceManagementService,vertx);
     }
 
     @Override
@@ -34,7 +31,7 @@ public class MainVerticle extends AbstractVerticle {
 
         Router router = Router.router(vertx);
         router.route().handler(BodyHandler.create());
-        vertx.setPeriodic(1000 * 60, timerId -> poller.pollServices());
+        vertx.setPeriodic(1000 * 10, timerId -> poller.pollServices());
 
         setRoutes(router);
 
@@ -66,7 +63,7 @@ public class MainVerticle extends AbstractVerticle {
 
         router.get("/service").handler(req -> {
 
-            dataService.getAllServices().setHandler(response ->{
+            serviceManagementService.getAllServices().setHandler(response ->{
                 if(response.failed()){
                     req.response().setStatusCode(500).end("Error adding new service");
                 }else{
@@ -83,7 +80,7 @@ public class MainVerticle extends AbstractVerticle {
 
         router.post("/service").handler(req -> {
             JsonObject jsonBody = req.getBodyAsJson();
-            dataService.addNewService(jsonBody.getString("name"),jsonBody.getString("url")).setHandler(response->{
+            serviceManagementService.addNewService(jsonBody.getString("name"),jsonBody.getString("url")).setHandler(response->{
                 if(response.failed()){
                     req.response().setStatusCode(500).end(new JsonObject().put("error",response.cause().getMessage()).encode());
                 }else{
@@ -102,7 +99,7 @@ public class MainVerticle extends AbstractVerticle {
             if(serviceNames == null || serviceNames.size() == 0){
                 req.response().setStatusCode(400).end("Service name not provided");
             }else{
-                dataService.deleteServiceByName(serviceNames.get(0)).setHandler(response->{
+                serviceManagementService.deleteServiceByName(serviceNames.get(0)).setHandler(response->{
                     if(response.failed()){
                         req.response().setStatusCode(400).end(new JsonObject().put("error",response.cause().getMessage()).encode());
                     }else{

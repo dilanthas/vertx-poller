@@ -2,26 +2,22 @@ package se.kry.codetest;
 
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
-import se.kry.codetest.service.DataService;
+import se.kry.codetest.service.ServiceManagementService;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
 public class BackgroundPoller {
 
     private WebClient webClient;
-    private DataService service;
+    private ServiceManagementService service;
 
     private int DEFAULT_WEB_PORT = 80;
     private long DEFAULT_TIME_OUT = 5000;
 
-    public BackgroundPoller(DataService service, Vertx vertx) {
+    public BackgroundPoller(ServiceManagementService service, Vertx vertx) {
         this.service = service;
         webClient = WebClient.create(vertx, new WebClientOptions().setVerifyHost(false).setSsl(false).setTrustAll(true));
     }

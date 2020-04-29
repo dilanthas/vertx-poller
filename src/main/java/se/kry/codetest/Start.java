@@ -8,7 +8,7 @@ public class Start {
 
     public static void main(String[] args) {
 
-        DeploymentOptions options = new DeploymentOptions().setInstances(10);
-        Vertx.vertx().deployVerticle(new MainVerticle(),options);
+        //DeploymentOptions options = new DeploymentOptions().setInstances(10);
+        Vertx.vertx().deployVerticle(new MainVerticle());
     }
 }
