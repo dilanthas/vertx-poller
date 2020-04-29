@@ -46,6 +46,7 @@ public class DBConnector {
                 queryResultFuture.complete(result.result());
             }
         });
+
         return queryResultFuture;
     }
 

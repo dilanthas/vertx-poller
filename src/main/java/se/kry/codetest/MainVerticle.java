@@ -20,16 +20,24 @@ public class MainVerticle extends AbstractVerticle {
     private DataService dataService;
     private BackgroundPoller poller ;
 
-
-    @Override
-    public void start(Future<Void> startFuture) {
+    private void init(){
         connector = new DBConnector(vertx);
         dataService = new DataService(connector);
         poller = new BackgroundPoller(dataService,vertx);
+    }
+
+    @Override
+    public void start(Future<Void> startFuture) {
+
+        // Init dependencies
+        init();
+
         Router router = Router.router(vertx);
         router.route().handler(BodyHandler.create());
         vertx.setPeriodic(1000 * 60, timerId -> poller.pollServices());
+
         setRoutes(router);
+
         vertx
                 .createHttpServer()
                 .requestHandler(router)

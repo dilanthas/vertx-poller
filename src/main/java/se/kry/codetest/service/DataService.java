@@ -16,6 +16,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+import static se.kry.codetest.service.ServiceStatus.UNKNOWN;
+
 public class DataService {
 
     public DBConnector dbConnector;
@@ -34,7 +36,7 @@ public class DataService {
 
         Future<ResultSet> queryResultFuture = Future.future();
 
-        if (url == null) {
+        if (url == null || url.length() == 0) {
             queryResultFuture.fail(new IllegalArgumentException("Service url cannot be empty"));
             return queryResultFuture;
         }
@@ -47,7 +49,7 @@ public class DataService {
             name = url;
         }
         String addNewServiceQuery = "INSERT INTO service (id,  name,url, status) VALUES (NULL, ?, ?,?)";
-        JsonArray params = new JsonArray().add(name).add(url).add("UNKNOWN");
+        JsonArray params = new JsonArray().add(name).add(url).add(UNKNOWN.name());
 
         dbConnector.query(addNewServiceQuery, params).setHandler(response -> {
 
